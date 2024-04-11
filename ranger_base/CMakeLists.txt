@@ -46,12 +46,38 @@ set(DEPENDENCIES
   "tf2_geometry_msgs"
 )
 
+add_library(ranger_messenger SHARED
+  src/ranger_messenger.cpp
+)
+
+target_include_directories(ranger_messenger PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(ranger_messenger ${dependencies})
+ament_target_dependencies(ranger_messenger rclcpp tf2 tf2_ros std_msgs nav_msgs sensor_msgs ranger_msgs ugv_sdk ${dependencies})
+
 add_executable(ranger_base_node 
     src/ranger_base_node.cpp
-    src/ranger_messenger.cpp)
+    # src/ranger_messenger.cpp
+)
 
-target_link_libraries(ranger_base_node ugv_sdk ${dependencies})
+target_link_libraries(ranger_base_node ranger_messenger)
 ament_target_dependencies(ranger_base_node rclcpp tf2 tf2_ros std_msgs nav_msgs sensor_msgs ranger_msgs ${dependencies})
+
+install(
+  DIRECTORY include/
+  DESTINATION include/${PROJECT_NAME}
+)
+
+install(
+  TARGETS ranger_messenger
+  EXPORT ranger_messenger
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
 install(TARGETS ranger_base_node
   DESTINATION lib/${PROJECT_NAME})
