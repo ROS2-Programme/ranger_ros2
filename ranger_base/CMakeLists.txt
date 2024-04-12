@@ -34,16 +34,16 @@ include_directories(
   ${EIGEN3_INCLUDE_DIR}
 )
 
-set(DEPENDENCIES
-  "geometry_msgs"
-  "nav_msgs"
-  "rclcpp"
-  "std_msgs"
-  "tf2"
-  "tf2_ros"
-  "ranger_msgs"
-  "sensor_msgs"
-  "tf2_geometry_msgs"
+set(dependencies
+  geometry_msgs
+  nav_msgs
+  rclcpp
+  std_msgs
+  tf2
+  tf2_ros
+  ranger_msgs
+  sensor_msgs
+  tf2_geometry_msgs
 )
 
 add_library(ranger_messenger SHARED
@@ -55,7 +55,7 @@ target_include_directories(ranger_messenger PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(ranger_messenger ${dependencies})
+# target_link_libraries(ranger_messenger ${dependencies})
 ament_target_dependencies(ranger_messenger rclcpp tf2 tf2_ros std_msgs nav_msgs sensor_msgs ranger_msgs ugv_sdk ${dependencies})
 
 add_executable(ranger_base_node 
@@ -66,10 +66,18 @@ add_executable(ranger_base_node
 target_link_libraries(ranger_base_node ranger_messenger)
 ament_target_dependencies(ranger_base_node rclcpp tf2 tf2_ros std_msgs nav_msgs sensor_msgs ranger_msgs ${dependencies})
 
-install(
-  DIRECTORY include/
+install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION include/${PROJECT_NAME}
 )
+
+# install(
+#   TARGETS ${PROJECT_NAME}
+#   EXPORT ${PROJECT_NAME}
+#   LIBRARY DESTINATION lib
+#   ARCHIVE DESTINATION lib
+#   RUNTIME DESTINATION bin
+#   INCLUDES DESTINATION include
+# )
 
 install(
   TARGETS ranger_messenger
@@ -77,6 +85,7 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
 )
 
 install(TARGETS ranger_base_node
@@ -98,6 +107,13 @@ if(BUILD_TESTING)
   #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+
+# ament_export_targets(ranger_messenger HAS_LIBRARY_TARGET)
+ament_export_dependencies(${dependencies})
+ament_export_include_directories(include)
+ament_export_libraries(ranger_messenger)
+# ament_export_targets(${PROJECT_NAME} ranger_messenger)
 
 ament_package()
 
