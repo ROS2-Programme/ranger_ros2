@@ -25,7 +25,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <tf2_ros/transform_broadcaster.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <sensor_msgs/msg/battery_state.hpp>
 
 //third libaray inclue
@@ -66,7 +66,7 @@ class RangerROSMessenger : public std::enable_shared_from_this<RangerROSMessenge
 
   void Run();
 
- private:
+ protected:
   void LoadParameters();
   void SetupSubscription();
   void PublishStateToROS();
