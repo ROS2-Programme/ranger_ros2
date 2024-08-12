@@ -25,7 +25,11 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <tf2_ros/transform_broadcaster.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#ifdef USING_GALACTIC
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#else
+#include <tf_geometry_msgs/tf2_geometry_msgs.hpp>
+#endif // USING_GALACTIC
 #include <sensor_msgs/msg/battery_state.hpp>
 
 //third libaray inclue

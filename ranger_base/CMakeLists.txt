@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
 project(ranger_base)
 
+set(ROS_DISTRO $ENV{ROS_DISTRO})
+if(${ROS_DISTRO} STREQUAL "galactic")
+  add_definitions(-DUSING_GALACTIC)
+endif()
+
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)
