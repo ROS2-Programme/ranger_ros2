@@ -31,6 +31,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #endif // USING_GALACTIC
 #include <sensor_msgs/msg/battery_state.hpp>
+#include <std_msgs/msg/int16.hpp>
 
 //third libaray inclue
 #include "ugv_sdk/details/robot_base/ranger_base.hpp"
@@ -76,6 +77,7 @@ class RangerROSMessenger : public std::enable_shared_from_this<RangerROSMessenge
   void PublishStateToROS();
   void PublishSimStateToROS(double linear, double angular);
   void TwistCmdCallback(geometry_msgs::msg::Twist::SharedPtr msg);
+  void DriveStateCmdCallback(std_msgs::msg::Int16::SharedPtr msg);
   double CalculateSteeringAngle(geometry_msgs::msg::Twist msg, double& radius);
   void UpdateOdometry(double linear, double angular, double angle, double dt);
   geometry_msgs::msg::Quaternion createQuaternionMsgFromYaw(double yaw);
@@ -107,8 +109,10 @@ class RangerROSMessenger : public std::enable_shared_from_this<RangerROSMessenge
   rclcpp::Publisher<ranger_msgs::msg::ActuatorStateArray>::SharedPtr actuator_state_pub_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
   rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery_state_pub_;
+  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr drive_state_pub_;
   
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr motion_cmd_sub_;
+  rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr drive_state_sub_;
 
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
@@ -118,6 +122,7 @@ class RangerROSMessenger : public std::enable_shared_from_this<RangerROSMessenge
   double position_x_ = 0.0;
   double position_y_ = 0.0;
   double theta_ = 0.0;
+  int curr_drive_state_ = 0; // 0: ranger mode, 1: ackermann
 };
 }  // namespace westonrobot
 
