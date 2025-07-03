@@ -9,6 +9,7 @@
 
 #include "ranger_base/ranger_messenger.hpp"
 
+#include "geometry_msgs/msg/twist.hpp"
 #include "ranger_base/kinematics_model.hpp"
 #include "std_msgs/msg/int16.hpp"
 #include <rclcpp/logging.hpp>
@@ -69,6 +70,9 @@ void RangerROSMessenger::LoadParameters() {
   odom_topic_name_ =
       node_->declare_parameter<std::string>("odom_topic_name", "odom");
   publish_odom_tf_ = node_->declare_parameter<bool>("publish_odom_tf", false);
+
+  // Base information
+  ;
 
   RCLCPP_INFO(
       node_->get_logger(),
@@ -140,7 +144,7 @@ void RangerROSMessenger::SetupSubscription() {
   odom_pub_ =
       node_->create_publisher<nav_msgs::msg::Odometry>(odom_topic_name_, 10);
   battery_state_pub_ = node_->create_publisher<sensor_msgs::msg::BatteryState>(
-      "/base/battery_state", 10);
+      "/base/status/battery_charge", 10);
   drive_state_pub_ = node_->create_publisher<std_msgs::msg::Int16>(
       "/base/status/drive_mode_status", 10);
 
@@ -154,6 +158,36 @@ void RangerROSMessenger::SetupSubscription() {
       std::bind(&RangerROSMessenger::DriveStateCmdCallback, this,
                 std::placeholders::_1));
   tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(node_);
+
+  // Updates for autoware
+  control_mode_status_pub_ =
+    node_->create_publisher<std_msgs::msg::Int16>("/base/status/control_mode", 10);
+  control_mode_cmd_sub_ =
+    node_->create_subscription<std_msgs::msg::Int16>("/base/command/control_mode", 10,
+    [this](const std_msgs::msg::Int16::SharedPtr msg){ control_mode_status_pub_->publish(*msg); });
+
+  gear_status_pub_ =
+    node_->create_publisher<std_msgs::msg::Int16>("/base/status/gear_status", 10);
+  gear_cmd_sub_ =
+    node_->create_subscription<std_msgs::msg::Int16>("/base/command/gear_cmd", 10,
+    [this](const std_msgs::msg::Int16::SharedPtr msg){ gear_status_pub_->publish(*msg); });
+
+  hazard_lights_status_pub_ =
+    node_->create_publisher<std_msgs::msg::Int16>("/base/status/hazard_lights_status", 10);
+  hazard_lights_cmd_sub_ =
+    node_->create_subscription<std_msgs::msg::Int16>("/base/command/hazard_lights_cmd", 10,
+    [this](const std_msgs::msg::Int16::SharedPtr msg){ hazard_lights_status_pub_->publish(*msg); });
+
+  turning_indicator_status_pub_ =
+    node_->create_publisher<std_msgs::msg::Int16>("/base/status/turning_indicator_status", 10);
+  turning_indicator_cmd_sub_ =
+    node_->create_subscription<std_msgs::msg::Int16>("/base/command/turning_indicator_cmd", 10,
+    [this](const std_msgs::msg::Int16::SharedPtr msg){ turning_indicator_status_pub_->publish(*msg); });
+
+  steering_angle_status_pub_ = node_->create_publisher<std_msgs::msg::Float32>("/base/status/steering_angle_status", 10);
+
+  velocity_status_pub_ = node_->create_publisher<geometry_msgs::msg::Twist>("/base/status/velocity_status", 10);
+
 }
 
 void RangerROSMessenger::PublishStateToROS() {
@@ -396,6 +430,19 @@ void RangerROSMessenger::TwistCmdCallback(
       double phi_i = ConvertCentralAngleToInner(steer_cmd);
       // RCLCPP_WARN_STREAM(node_->get_logger(), "steer: " << steer_cmd << ", phi_i: " << phi_i);
       robot_->SetMotionCommand(msg->linear.x, phi_i);
+
+      // Steering angle feedback for autoware
+      std_msgs::msg::Float32 steering_angle;
+      steering_angle.data = phi_i;
+      steering_angle_status_pub_->publish(steering_angle);
+
+      // Velocity feedback for autoware
+      geometry_msgs::msg::Twist velocity;
+      velocity.linear.x = msg->linear.x;
+      velocity.linear.y = 0.0; // Cause we won't have this
+      velocity.angular.z = phi_i;
+      velocity_status_pub_->publish(velocity);
+
     }
     break;
 

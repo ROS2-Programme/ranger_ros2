@@ -11,6 +11,7 @@
 #define RANGER_MESSENGER_HPP
 
 //std and c++ inlclude
+#include "geometry_msgs/msg/twist.hpp"
 #include <string>
 #include <memory>
 #include <cmath>
@@ -48,6 +49,8 @@
 #include "ranger_msgs/msg/motor_state.hpp"
 
 #include "ranger_base/ranger_params.hpp"
+
+#include <std_msgs/msg/float32.hpp>
 
 namespace westonrobot {
 class RangerROSMessenger : public std::enable_shared_from_this<RangerROSMessenger>
@@ -110,7 +113,33 @@ class RangerROSMessenger : public std::enable_shared_from_this<RangerROSMessenge
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
   rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery_state_pub_;
   rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr drive_state_pub_;
-  
+
+  // Control Mode Publisher
+  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr control_mode_status_pub_;
+  // Control Mode Subscriber
+  rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr control_mode_cmd_sub_;
+
+  // Gear Status Publisher
+  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr gear_status_pub_;
+  // Gear Status Subscriber
+  rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr gear_cmd_sub_;
+
+  // Hazard Lights Publisher
+  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr hazard_lights_status_pub_;
+  // Hazard Lights Subscriber
+  rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr hazard_lights_cmd_sub_;
+
+  // Steering Angle Publisher
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr steering_angle_status_pub_;
+
+  // Turning Indicator Publisher
+  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr turning_indicator_status_pub_;
+  // Turning Indicator Subscriber
+  rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr turning_indicator_cmd_sub_;
+
+  // Velocity Status Publisher
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velocity_status_pub_;
+
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr motion_cmd_sub_;
   rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr drive_state_sub_;
 
