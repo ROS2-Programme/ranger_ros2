@@ -12,6 +12,7 @@
 
 //std and c++ inlclude
 #include "geometry_msgs/msg/twist.hpp"
+#include <rclcpp/timer.hpp>
 #include <string>
 #include <memory>
 #include <cmath>
@@ -144,6 +145,16 @@ class RangerROSMessenger : public std::enable_shared_from_this<RangerROSMessenge
   rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr drive_state_sub_;
 
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+
+  // Msgs
+  std_msgs::msg::Int16 control_mode_msg_;
+  std_msgs::msg::Int16 gear_msg_;
+  std_msgs::msg::Int16 hazard_lights_msg_;
+  std_msgs::msg::Int16 turning_indicator_msg_;
+  std_msgs::msg::Float32 steering_angle_msgs_;
+
+  // Timer to publish status
+  rclcpp::TimerBase::SharedPtr status_timer_;
 
   // odom variables
   rclcpp::Time last_time_;
