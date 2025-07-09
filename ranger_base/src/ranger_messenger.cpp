@@ -449,7 +449,7 @@ void RangerROSMessenger::TwistCmdCallback(
 
       // Steering angle feedback for autoware
       std_msgs::msg::Float32 steering_angle;
-      steering_angle.data = phi_i;
+      steering_angle.data = std::isnan(phi_i) ? 0.0 : phi_i;
       steering_angle_status_pub_->publish(steering_angle);
 
       // Velocity feedback for autoware
